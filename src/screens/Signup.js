@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Pressable } from 'react-native';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebaseConfig';
 
 const Signup = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -32,12 +33,10 @@ const Signup = ({ navigation }) => {
     }
 
     setIsLoading(true);
-    const auth = getAuth();
     createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
         setIsLoading(false);
-        Alert.alert("Success", "Account created successfully!");
-        // Navigate to next screen if needed
+        navigation.navigate("NameScreen");
       })
       .catch(error => {
         setIsLoading(false);

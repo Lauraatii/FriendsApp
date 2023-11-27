@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebaseConfig';
 
 const SignIn = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -15,7 +16,6 @@ const SignIn = ({ navigation }) => {
     }
 
     setIsLoading(true);
-    const auth = getAuth();
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
         setIsLoading(false);
