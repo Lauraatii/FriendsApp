@@ -1,16 +1,33 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import axios from 'axios';
+import { auth } from '../../../firebaseConfig';
 
 const CountryScreen = ({ navigation }) => {
   const [selectedCountry, setSelectedCountry] = useState();
 
-  // List of countries for the picker - replace with your actual list
-  const countries = ["USA", "Canada", "UK", "Australia", "Other"]; // Add your country list here
+  const countries = ["Denmark", "USA", "Canada", "UK", "Australia", "Other"]; 
 
-  const handleNext = () => {
-    // You can handle the selected country here
-    navigation.navigate('ProfilePictureScreen'); 
+  const handleNext = async () => {
+    if (!selectedCountry) {
+      Alert.alert("Error", "Please select a country");
+      return;
+    }
+
+    try {
+      const userId = auth.currentUser.uid;
+      const functionUrl = "https://us-central1-friendsapp-76f42.cloudfunctions.net/updateUserProfile";
+
+      await axios.post(functionUrl, { 
+        userId, 
+        data: { country: selectedCountry } 
+      });
+
+      navigation.navigate('ProfilePictureScreen'); 
+    } catch (error) {
+      Alert.alert("Error", "Failed to save data: " + error.message);
+    }
   };
 
   return (

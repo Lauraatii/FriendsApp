@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import axios from 'axios'; 
+import { auth } from '../../../firebaseConfig'; 
 
 const ProfilePictureScreen = ({ navigation }) => {
   const [image, setImage] = useState(null);
@@ -29,8 +32,36 @@ const ProfilePictureScreen = ({ navigation }) => {
     }
   };
 
-  const handleNext = () => {
-    navigation.navigate('MeetingPreferenceScreen');
+  const handleNext = async () => {
+    // if (!image) {
+    //   Alert.alert("Error", "Please select an image");
+    //   return;
+    // }
+  
+    try {
+      const userId = auth.currentUser.uid;
+      const storage = getStorage();
+      const imageRef = ref(storage, `profilePictures/${userId}`);
+  
+      const response = await fetch(image);
+      const blob = await response.blob();
+      console.log('Blob size:', blob.size);
+
+  
+      await uploadBytes(imageRef, blob);
+  
+      const imageUrl = await getDownloadURL(imageRef);
+  
+      const functionUrl = "https://us-central1-friendsapp-76f42.cloudfunctions.net/updateUserProfile";
+      await axios.post(functionUrl, {
+        userId,
+        data: { profilePicture: imageUrl }
+      });
+  
+      navigation.navigate('MeetingPreferenceScreen');
+    } catch (error) {
+      console.error("Failed to upload image:", error, error.request);
+    }
   };
 
   return (

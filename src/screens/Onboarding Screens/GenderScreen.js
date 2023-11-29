@@ -1,12 +1,31 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { auth } from '../../../firebaseConfig';
+import axios from 'axios'; 
+
 
 const GenderScreen = ({ navigation }) => {
   const [selectedGender, setSelectedGender] = useState(null);
 
-  const handleNext = () => {
-    // Pass the selected gender to the next screen or handle it as needed
-    navigation.navigate('BirthdayScreen', { selectedGender }); // Replace 'NextScreenName' with the actual name of your next screen
+  const handleNext = async () => {
+    if (!selectedGender) {
+      Alert.alert("Error", "Please select a gender");
+      return;
+    }
+  
+    try {
+      const userId = auth.currentUser.uid;
+      const functionUrl = "https://us-central1-friendsapp-76f42.cloudfunctions.net/updateUserProfile";
+  
+      await axios.post(functionUrl, { 
+        userId, 
+        data: { gender: selectedGender }  
+      });
+  
+      navigation.navigate('BirthdayScreen'); 
+    } catch (error) {
+      Alert.alert("Error", "Failed to save data: " + error.message);
+    }
   };
 
   return (

@@ -1,14 +1,33 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { auth } from '../../../firebaseConfig';
+import axios from 'axios'; 
+
 
 const NameScreen = ({ navigation }) => {
   const [name, setName] = useState('');
 
-  const handleNext = () => {
-    // Here, you can add any validation or processing for the name
-    // For now, we'll just navigate to the next screen
-    navigation.navigate('GenderScreen'); 
-  };
+  const handleNext = async () => {
+    if (name) {
+      try {
+        const userId = auth.currentUser.uid;
+        const functionUrl = "https://us-central1-friendsapp-76f42.cloudfunctions.net/updateUserProfile";
+        console.log("Current User UID:", auth.currentUser.uid);
+        console.log("Request data:", { userId, data: { name } });
+        await axios.post(functionUrl, { 
+          userId, 
+          data: { name } 
+        });
+        
+
+      navigation.navigate('GenderScreen');
+  } catch (error) {
+      Alert.alert("Error", "Failed to save data: " + error.message);
+  }
+} else {
+  Alert.alert("Error", "Please enter your name");
+}
+};
 
   return (
     <View style={styles.container}>

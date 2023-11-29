@@ -1,12 +1,30 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import axios from 'axios'; 
+import { auth } from '../../../firebaseConfig';
 
 const BirthdayScreen = ({ navigation }) => {
   const [birthday, setBirthday] = useState('');
 
-  const handleNext = () => {
-    // Add validation or processing for the birthday here if needed
-    navigation.navigate('CountryScreen'); 
+  const handleNext = async () => {
+    if (!birthday) {
+      Alert.alert("Error", "Please enter your birthday");
+      return;
+    }
+
+    try {
+      const userId = auth.currentUser.uid;
+      const functionUrl = "https://us-central1-friendsapp-76f42.cloudfunctions.net/updateUserProfile";
+
+      await axios.post(functionUrl, { 
+        userId, 
+        data: { birthday } 
+      });
+
+      navigation.navigate('CountryScreen'); 
+    } catch (error) {
+      Alert.alert("Error", "Failed to save data: " + error.message);
+    }
   };
 
   return (
