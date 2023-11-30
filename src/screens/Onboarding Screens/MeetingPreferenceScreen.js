@@ -1,11 +1,30 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import axios from 'axios';
+import { auth } from '../../../firebaseConfig';
 
 const MeetingPreferenceScreen = ({ navigation }) => {
   const [selectedOption, setSelectedOption] = useState(null);
 
-  const handleNext = () => {
-    navigation.navigate('CategoriesScreen'); 
+  const handleNext = async () => {
+    if (!selectedOption) {
+      Alert.alert("Error", "Please select an option");
+      return;
+    }
+
+    try {
+      const userId = auth.currentUser.uid;
+      const functionUrl = "https://us-central1-friendsapp-76f42.cloudfunctions.net/updateUserProfile";
+
+      await axios.post(functionUrl, { 
+        userId, 
+        data: { meetingPreference: selectedOption } 
+      });
+
+      navigation.navigate('CategoriesScreen'); 
+    } catch (error) {
+      Alert.alert("Error", "Failed to save data: " + error.message);
+    }
   };
 
   return (

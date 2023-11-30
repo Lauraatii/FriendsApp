@@ -6,6 +6,19 @@ import { auth } from '../../../firebaseConfig';
 const BirthdayScreen = ({ navigation }) => {
   const [birthday, setBirthday] = useState('');
 
+  const formatBirthday = (text) => {
+    const newText = text.replace(/[^0-9]/g, ''); 
+  
+    if (newText.length <= 2) {
+      return newText;
+    }
+    if (newText.length <= 4) {
+      return `${newText.slice(0, 2)}/${newText.slice(2)}`;
+    }
+    const formattedText = `${newText.slice(0, 2)}/${newText.slice(2, 4)}/${newText.slice(4, 8)}`;
+    return formattedText;
+  };
+  
   const handleNext = async () => {
     if (!birthday) {
       Alert.alert("Error", "Please enter your birthday");
@@ -34,7 +47,7 @@ const BirthdayScreen = ({ navigation }) => {
         style={styles.input}
         placeholder="dd/mm/yyyy"
         value={birthday}
-        onChangeText={setBirthday}
+        onChangeText={(text) => setBirthday(formatBirthday(text))}
         keyboardType="numeric"
       />
       <TouchableOpacity style={styles.button} onPress={handleNext}>

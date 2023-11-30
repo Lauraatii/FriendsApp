@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import axios from 'axios'; 
-import { auth } from '../../../firebaseConfig'; 
+import axios from 'axios';
+import { auth } from '../../../firebaseConfig';
 
 const ProfilePictureScreen = ({ navigation }) => {
   const [image, setImage] = useState(null);
@@ -26,42 +26,66 @@ const ProfilePictureScreen = ({ navigation }) => {
       aspect: [4, 3],
       quality: 1,
     });
-
-    if (!result.cancelled) {
-      setImage(result.uri);
+  
+    console.log("Image Picker Result:", result);
+  
+    if (!result.cancelled && result.assets && result.assets.length > 0) {
+      const selectedImageUri = result.assets[0].uri;
+      setImage(selectedImageUri);
+      console.log("Selected image URI:", selectedImageUri);
     }
+  };  
+
+  const uriToBlob = (uri) => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = () => {
+        console.log("Blob conversion successful");
+        resolve(xhr.response);
+      };
+      xhr.onerror = (e) => {
+        console.error("Blob conversion error:", e);
+        reject(e);
+      };
+      xhr.responseType = 'blob';
+      xhr.open('GET', uri, true);
+      xhr.send(null);
+    });
   };
+  
 
   const handleNext = async () => {
-    // if (!image) {
-    //   Alert.alert("Error", "Please select an image");
-    //   return;
-    // }
-  
-    try {
-      const userId = auth.currentUser.uid;
-      const storage = getStorage();
-      const imageRef = ref(storage, `profilePictures/${userId}`);
-  
-      const response = await fetch(image);
-      const blob = await response.blob();
-      console.log('Blob size:', blob.size);
+    if (!image) {
+      // Uncomment the below line if you want to enforce image selection
+      // Alert.alert("Error", "Please select an image");
+      // return;
+    } else {
+      try {
+        const userId = auth.currentUser.uid;
+        console.log("User ID:", userId); // Log User ID
 
-  
-      await uploadBytes(imageRef, blob);
-  
-      const imageUrl = await getDownloadURL(imageRef);
-  
-      const functionUrl = "https://us-central1-friendsapp-76f42.cloudfunctions.net/updateUserProfile";
-      await axios.post(functionUrl, {
-        userId,
-        data: { profilePicture: imageUrl }
-      });
-  
-      navigation.navigate('MeetingPreferenceScreen');
-    } catch (error) {
-      console.error("Failed to upload image:", error, error.request);
+        const storage = getStorage();
+        const imageRef = ref(storage, `profilePictures/${userId}`);
+
+        console.log("Uploading image:", image); // Log image being uploaded
+        const blob = await uriToBlob(image);
+
+        await uploadBytes(imageRef, blob);
+        console.log("Image uploaded"); // Log after upload
+        const imageUrl = await getDownloadURL(imageRef);
+        console.log("Image URL:", imageUrl); // Log the URL
+
+        const functionUrl = "https://us-central1-friendsapp-76f42.cloudfunctions.net/updateUserProfile";
+        await axios.post(functionUrl, {
+          userId,
+          data: { profilePicture: imageUrl }
+        });
+      } catch (error) {
+        console.error("Failed to upload image:", error);
+      }
     }
+
+    navigation.navigate('MeetingPreferenceScreen');
   };
 
   return (

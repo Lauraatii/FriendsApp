@@ -7,7 +7,7 @@ import { auth } from '../../../firebaseConfig';
 const CountryScreen = ({ navigation }) => {
   const [selectedCountry, setSelectedCountry] = useState();
 
-  const countries = ["Denmark", "USA", "Canada", "UK", "Australia", "Other"]; 
+  const countries = ["", "Denmark", "USA", "Canada", "UK", "Australia", "Germany", "France", "Italy", "Spain", "Japan", "China", "India", "Brazil", "Mexico", "South Africa", "Other"]; 
 
   const handleNext = async () => {
     if (!selectedCountry) {
@@ -39,7 +39,7 @@ const CountryScreen = ({ navigation }) => {
         style={styles.picker}
       >
         {countries.map((country, index) => (
-          <Picker.Item key={index} label={country} value={country} />
+          <Picker.Item key={index} label={country === "" ? "Select a country" : country} value={country} />
         ))}
       </Picker>
       <TouchableOpacity style={styles.button} onPress={handleNext}>

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import axios from 'axios';
+import { auth } from '../../../firebaseConfig';
 
 const CategoriesScreen = ({ navigation }) => {
   const categories = [
@@ -17,8 +19,20 @@ const CategoriesScreen = ({ navigation }) => {
     }
   };
 
-  const handleNext = () => {
-    navigation.navigate('LoadingScreen'); 
+  const handleNext = async () => {
+    try {
+      const userId = auth.currentUser.uid;
+      const functionUrl = "https://us-central1-friendsapp-76f42.cloudfunctions.net/updateUserProfile";
+
+      await axios.post(functionUrl, { 
+        userId, 
+        data: { categories: selectedCategories } 
+      });
+
+      navigation.navigate('LoadingScreen'); 
+    } catch (error) {
+      Alert.alert("Error", "Failed to save data: " + error.message);
+    }
   };
 
   const renderCategory = ({ item }) => (

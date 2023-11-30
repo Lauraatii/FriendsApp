@@ -20,7 +20,7 @@ const SignIn = ({ navigation }) => {
       .then(() => {
         setIsLoading(false);
         Alert.alert("Success", "Signed in successfully!");
-        // Navigate to the next screen after sign in
+        navigation.navigate("HomeScreen");
       })
       .catch(error => {
         setIsLoading(false);
