@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    marginBottom: 40,
+    marginBottom: 20,
     color: '#333',
     textAlign: 'center',
   },
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 40,  
-    marginTop: 15,
+    marginTop: 5,
   },
   buttonText: {
     color: 'white',

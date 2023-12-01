@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, ActivityIndicator} from 'react-native';
 const LoadingScreen = ({ navigation }) => {
   useEffect(() => {
     setTimeout(() => {
-      // navigation.navigate('HomeScreen'); 
+      navigation.navigate('Main'); 
     }, 2000); 
   }, [navigation]);
 

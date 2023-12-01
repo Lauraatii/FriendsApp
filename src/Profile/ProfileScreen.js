@@ -57,11 +57,9 @@ const ProfileScreen = ({ navigation }) => {
         },
         { text: "Yes", onPress: () => {
             signOut(auth).then(() => {
-              // Sign-out successful.
               console.log("User signed out");
-              navigation.navigate('SignIn'); // Navigate to Sign-In screen after sign out
+              navigation.navigate('SignIn'); 
             }).catch((error) => {
-              // An error happened.
               console.error("Sign out error:", error);
             });
           }
@@ -74,7 +72,7 @@ const ProfileScreen = ({ navigation }) => {
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
         <Image
-          source={{ uri: userData?.profilePicture || 'https://via.placeholder.com/150' }}
+          source={{ uri: userData?.profilePicture || 'https://via.placeholder.com/200' }}
           style={styles.profilePic}
         />
         <Text style={styles.nameAge}>
@@ -84,6 +82,7 @@ const ProfileScreen = ({ navigation }) => {
 
         <View style={styles.aboutMeCard}>
           <Text style={styles.infoTitle}>About Me</Text>
+          <Text style={styles.infoText}>Bio: {userData?.bio}</Text>
           <Text style={styles.infoText}>Gender: {userData?.gender}</Text>
           <Text style={styles.infoText}>Interested in: {userData?.meetingPreference}</Text>
 
@@ -125,9 +124,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   profilePic: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
     borderWidth: 4,
     borderColor: '#007bff',
     marginBottom: 15,
@@ -184,7 +183,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     alignItems: 'center',
     justifyContent: 'center',
-  },
+    marginRight: 5,
+},
   categoryText: {
     color: '#fff',
     fontSize: 14,

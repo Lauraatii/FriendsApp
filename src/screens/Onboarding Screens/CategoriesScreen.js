@@ -29,7 +29,7 @@ const CategoriesScreen = ({ navigation }) => {
         data: { categories: selectedCategories } 
       });
 
-      navigation.navigate('LoadingScreen'); 
+      navigation.navigate('BioScreen'); 
     } catch (error) {
       Alert.alert("Error", "Failed to save data: " + error.message);
     }

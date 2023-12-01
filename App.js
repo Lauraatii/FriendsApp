@@ -15,6 +15,8 @@ import LoadingScreen from './src/screens/Onboarding Screens/LoadingScreen';
 import MyTabs from "./src/screens/TabNav/Navigator";
 import SettingsScreen from './src/Profile/SettingsScreen';
 import ProfileScreen from './src/Profile/ProfileScreen';
+import HomeScreen from './src/screens/TabNav/HomeScreen';
+import BioScreen from './src/screens/Onboarding Screens/BioScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,10 +34,13 @@ export default function App() {
         <Stack.Screen name="ProfilePictureScreen" component={ProfilePictureScreen} />
         <Stack.Screen name="MeetingPreferenceScreen" component={MeetingPreferenceScreen} />
         <Stack.Screen name="CategoriesScreen" component={CategoriesScreen} />
+        <Stack.Screen name="BioScreen" component={BioScreen} />
         <Stack.Screen name="LoadingScreen" component={LoadingScreen} />
         <Stack.Screen name="Main" component={MyTabs} options={{ headerShown: false }} />
         <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
         <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+        <Stack.Screen name="HomeScreen" component={HomeScreen} />
+        
 
 
       </Stack.Navigator>
