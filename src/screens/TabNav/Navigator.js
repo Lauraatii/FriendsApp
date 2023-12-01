@@ -1,6 +1,6 @@
-import { NavigationContainer } from '@react-navigation/native';
+import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from 'react-native-vector-icons/Ionicons'; 
 
 import HomeScreen from './HomeScreen';
 import ProfileScreen from './ProfileScreen'; 
@@ -14,20 +14,35 @@ function MyTabs() {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-
           if (route.name === 'Home') {
-            iconName = focused ? 'ios-home' : 'ios-home-outline';
+            iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Profile') {
-            iconName = focused ? 'ios-person' : 'ios-person-outline';
+            iconName = focused ? 'person-circle' : 'person-circle-outline';
           } else if (route.name === 'Messages') {
-            iconName = focused ? 'ios-chatbubbles' : 'ios-chatbubbles-outline';
+            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
           }
-
-          // You can return any component that you like here!
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: 'tomato',
+        tabBarShowLabel: false, 
+        tabBarActiveTintColor: 'black',
         tabBarInactiveTintColor: 'gray',
+        tabBarStyle: {
+          position: 'absolute',
+          borderRadius: 20,
+          paddingBottom: 0,
+          height: 70,
+          bottom: 30,
+          left: 20,
+          right: 20,
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: 2,
+          },
+          shadowOpacity: 0.25,
+          shadowRadius: 3.84,
+          elevation: 5,
+        },
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
@@ -36,5 +51,5 @@ function MyTabs() {
     </Tab.Navigator>
   );
 }
-export default MyTabs;
 
+export default MyTabs;
