@@ -19,8 +19,8 @@ const SignIn = ({ navigation }) => {
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
         setIsLoading(false);
-        Alert.alert("Success", "Signed in successfully!");
-        navigation.navigate("HomeScreen");
+        // Alert.alert("Success", "Signed in successfully!");
+        navigation.replace("Main");
       })
       .catch(error => {
         setIsLoading(false);

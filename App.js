@@ -12,7 +12,7 @@ import ProfilePictureScreen from './src/screens/Onboarding Screens/ProfilePictur
 import MeetingPreferenceScreen from './src/screens/Onboarding Screens/MeetingPreferenceScreen';
 import CategoriesScreen from './src/screens/Onboarding Screens/CategoriesScreen';
 import LoadingScreen from './src/screens/Onboarding Screens/LoadingScreen';
-import HomeScreen from './src/screens/HomeScreen';
+import MyTabs from "./src/screens/TabNav/Navigator";
 
 const Stack = createNativeStackNavigator();
 
@@ -31,7 +31,7 @@ export default function App() {
         <Stack.Screen name="MeetingPreferenceScreen" component={MeetingPreferenceScreen} />
         <Stack.Screen name="CategoriesScreen" component={CategoriesScreen} />
         <Stack.Screen name="LoadingScreen" component={LoadingScreen} />
-        <Stack.Screen name="HomeScreen" component={HomeScreen} />
+        <Stack.Screen name="Main" component={MyTabs} options={{ headerShown: false }} />
 
       </Stack.Navigator>
     </NavigationContainer>
