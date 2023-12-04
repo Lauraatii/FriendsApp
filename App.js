@@ -14,6 +14,7 @@ import CategoriesScreen from './src/screens/Onboarding Screens/CategoriesScreen'
 import LoadingScreen from './src/screens/Onboarding Screens/LoadingScreen';
 import MyTabs from "./src/screens/TabNav/Navigator";
 import SettingsScreen from './src/Profile/SettingsScreen';
+import EditProfile from './src/Profile/EditProfile';
 import ProfileScreen from './src/Profile/ProfileScreen';
 import HomeScreen from './src/screens/TabNav/HomeScreen';
 import BioScreen from './src/screens/Onboarding Screens/BioScreen';
@@ -38,6 +39,7 @@ export default function App() {
         <Stack.Screen name="LoadingScreen" component={LoadingScreen} />
         <Stack.Screen name="Main" component={MyTabs} options={{ headerShown: false }} />
         <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
+        <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
         <Stack.Screen name="HomeScreen" component={HomeScreen} />
         

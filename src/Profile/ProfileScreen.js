@@ -106,7 +106,7 @@ const ProfileScreen = ({ navigation }) => {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.editButton} onPress={() => { /* Navigate to Edit Profile */ }}>
+        <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('EditProfile')}>
           <Text style={styles.buttonText}>Edit Profile</Text>
         </TouchableOpacity>
 

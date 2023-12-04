@@ -113,8 +113,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   container: {
+    // alignItems: 'center',
+    // padding: 20,
+    // backgroundColor: '#fff',
+    flex: 1,
     alignItems: 'center',
-    padding: 20,
+    paddingTop: 30,
+    paddingBottom: 190,
     backgroundColor: '#fff',
   },
   title: {
