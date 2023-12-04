@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import { auth } from '../../../firebaseConfig';
@@ -11,7 +11,7 @@ const CountryScreen = ({ navigation }) => {
 
   const handleNext = async () => {
     if (!selectedCountry) {
-      Alert.alert("Error", "Please select a country");
+      Alert.alert("Error", "Please select your current country");
       return;
     }
 
@@ -31,8 +31,9 @@ const CountryScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Select your country</Text>
+    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+      <View style={styles.container}>
+      <Text style={styles.title}>Select your current country</Text>
       <Picker
         selectedValue={selectedCountry}
         onValueChange={(itemValue) => setSelectedCountry(itemValue)}
@@ -44,12 +45,17 @@ const CountryScreen = ({ navigation }) => {
       </Picker>
       <TouchableOpacity style={styles.button} onPress={handleNext}>
         <Text style={styles.buttonText}>Next</Text>
-      </TouchableOpacity>
-    </View>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollViewContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -67,13 +73,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#FFCB37',
     padding: 15,
     borderRadius: 8,
     width: '80%',
   },
   buttonText: {
-    color: 'white',
+    color: 'black',
     textAlign: 'center',
     fontWeight: 'bold',
   },

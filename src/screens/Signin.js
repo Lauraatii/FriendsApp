@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebaseConfig';
 
@@ -29,8 +29,9 @@ const SignIn = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sign In</Text>
+    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Sign In</Text>
 
       <TextInput
         style={styles.input}
@@ -49,18 +50,26 @@ const SignIn = ({ navigation }) => {
         secureTextEntry
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleSignIn} disabled={isLoading}>
-        {isLoading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.buttonText}>Sign In</Text>}
-      </TouchableOpacity>
+<TouchableOpacity style={styles.button} onPress={handleSignIn} disabled={isLoading}>
+          {isLoading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.buttonText}>Sign In</Text>}
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-        <Text style={styles.linkText} onPress={() => navigation.navigate('Signup')}>Don't have an account? Sign Up</Text>
-      </TouchableOpacity>
-    </View>
+        <Text style={styles.linkText}>
+          Don't have an account?{" "}
+          <Text style={styles.signUpLink} onPress={() => navigation.navigate('Signup')}>
+            Sign Up
+          </Text>
+        </Text>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollViewContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
     container: {
         flex: 1,
         justifyContent: 'center',
@@ -87,7 +96,7 @@ const styles = StyleSheet.create({
       },
       button: {
         height: 50,
-        backgroundColor: '#007bff',
+        backgroundColor: '#FFCB37',
         borderRadius: 8,
         alignItems: 'center',
         justifyContent: 'center',
@@ -95,7 +104,7 @@ const styles = StyleSheet.create({
         marginTop: 15,
       },
       buttonText: {
-        color: 'white',
+        color: 'black',
         fontWeight: 'bold',
         fontSize: 18,
       },
@@ -110,13 +119,16 @@ const styles = StyleSheet.create({
         marginTop: -10,
         textAlign: 'center',
       },
-  linkText: {
-    color: '#007bff',
-    marginTop: 15,
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+      linkText: {
+        marginTop: 15,
+        color: 'black',
+        textAlign: 'center',
+        fontSize: 16,
+      },
+      signUpLink: {
+        color: '#FFCB37', 
+        fontWeight: 'bold',
+      },
 });
 
 export default SignIn;

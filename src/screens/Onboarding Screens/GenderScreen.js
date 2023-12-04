@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { auth } from '../../../firebaseConfig';
 import axios from 'axios'; 
 
@@ -29,38 +29,44 @@ const GenderScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Select your gender</Text>
+    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Select your gender</Text>
 
-      <TouchableOpacity 
-        style={[styles.option, selectedGender === 'male' && styles.selectedOption]} 
-        onPress={() => setSelectedGender('male')}
-      >
-        <Text style={styles.optionText}>Male 👨</Text>
-      </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.option, selectedGender === 'male' && styles.selectedOption]} 
+          onPress={() => setSelectedGender('male')}
+        >
+          <Text style={styles.optionText}>Male 💁🏽‍♂️</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity 
-        style={[styles.option, selectedGender === 'female' && styles.selectedOption]} 
-        onPress={() => setSelectedGender('female')}
-      >
-        <Text style={styles.optionText}>Female 👩</Text>
-      </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.option, selectedGender === 'female' && styles.selectedOption]} 
+          onPress={() => setSelectedGender('female')}
+        >
+          <Text style={styles.optionText}>Female 💁🏽‍♀️</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity 
-        style={[styles.option, selectedGender === 'other' && styles.selectedOption]} 
-        onPress={() => setSelectedGender('other')}
-      >
-        <Text style={styles.optionText}>Other 🦄</Text>
-      </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.option, selectedGender === 'other' && styles.selectedOption]} 
+          onPress={() => setSelectedGender('other')}
+        >
+          <Text style={styles.optionText}>Other 🦄</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={handleNext}>
-        <Text style={styles.buttonText}>Next</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity style={styles.button} onPress={handleNext}>
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollViewContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -82,20 +88,20 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   selectedOption: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#FDDA64',
   },
   optionText: {
     textAlign: 'center',
     fontWeight: 'bold',
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#FFCB37',
     padding: 15,
     borderRadius: 8,
     width: '80%',
   },
   buttonText: {
-    color: 'white',
+    color: 'black',
     textAlign: 'center',
     fontWeight: 'bold',
   },

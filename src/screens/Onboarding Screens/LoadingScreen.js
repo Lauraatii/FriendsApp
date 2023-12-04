@@ -11,7 +11,7 @@ const LoadingScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Finding new friends...</Text>
-      <ActivityIndicator size="large" color="#007bff" />
+      <ActivityIndicator size="large" color="#FFCB37" />
     </View>
   );
 };

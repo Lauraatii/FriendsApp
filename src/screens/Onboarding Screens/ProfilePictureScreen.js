@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, Platform } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Image, Alert, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import axios from 'axios';
@@ -89,27 +89,31 @@ const ProfilePictureScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Add a Profile Picture</Text>
-      <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
-        {image ? (
-          <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
-        ) : (
-          <Text style={styles.imagePickerText}>+</Text>
-        )}
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={handleNext}>
-        <Text style={styles.buttonText}>Next</Text>
-      </TouchableOpacity>
-    </View>
+    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Add a Profile Picture</Text>
+        <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
+          {image ? (
+            <Image source={{ uri: image }} style={styles.image} />
+          ) : (
+            <Text style={styles.imagePickerText}>+</Text>
+          )}
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleNext}>
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
+  scrollViewContainer: {
+    flexGrow: 1,
     justifyContent: 'center',
+  },
+  container: {
+    alignItems: 'center',
     padding: 20,
     backgroundColor: '#fff',
   },
@@ -127,18 +131,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#e7e7e7',
     marginBottom: 20,
   },
+  image: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+  },
   imagePickerText: {
     fontSize: 50,
     color: '#999',
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#FFCB37',
     padding: 15,
     borderRadius: 8,
     width: '80%',
   },
   buttonText: {
-    color: 'white',
+    color: 'black',
     textAlign: 'center',
     fontWeight: 'bold',
   },

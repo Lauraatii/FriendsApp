@@ -75,13 +75,13 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top', // This ensures text starts from the top in multiline TextInput
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#FFCB37',
     padding: 15,
     borderRadius: 8,
     width: '80%',
   },
   buttonText: {
-    color: 'white',
+    color: 'black',
     textAlign: 'center',
     fontWeight: 'bold',
   },

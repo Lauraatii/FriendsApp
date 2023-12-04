@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f0f0f0', // Light gray background for a softer look
+    backgroundColor: '#f0f0f0', 
   },
   title: {
     fontSize: 24,

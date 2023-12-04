@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { auth } from '../../../firebaseConfig';
 import axios from 'axios'; 
-
 
 const NameScreen = ({ navigation }) => {
   const [name, setName] = useState('');
@@ -18,37 +17,40 @@ const NameScreen = ({ navigation }) => {
           userId, 
           data: { name } 
         });
-        
 
-      navigation.navigate('GenderScreen');
-  } catch (error) {
-      Alert.alert("Error", "Failed to save data: " + error.message);
-  }
-} else {
-  Alert.alert("Error", "Please enter your name");
-}
-};
+        navigation.navigate('GenderScreen');
+      } catch (error) {
+        Alert.alert("Error", "Failed to save data: " + error.message);
+      }
+    } else {
+      Alert.alert("Error", "Please enter your name");
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Your Name</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter your name"
-        value={name}
-        onChangeText={setName}
-      />
-      <TouchableOpacity style={styles.button} onPress={handleNext}>
-        <Text style={styles.buttonText}>Next</Text>
-      </TouchableOpacity>
-    </View>
+    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Your Name</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter your name"
+          value={name}
+          onChangeText={setName}
+        />
+        <TouchableOpacity style={styles.button} onPress={handleNext}>
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  scrollViewContainer: {
+    flexGrow: 1,
     justifyContent: 'center',
+  },
+  container: {
     alignItems: 'center',
     padding: 20,
     backgroundColor: '#fff',
@@ -67,13 +69,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#FFCB37',
     padding: 15,
     borderRadius: 8,
     width: '80%',
   },
   buttonText: {
-    color: 'white',
+    color: 'black',
     textAlign: 'center',
     fontWeight: 'bold',
   },

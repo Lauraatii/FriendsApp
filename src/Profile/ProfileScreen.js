@@ -118,13 +118,14 @@ const ProfileScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   scrollView: {
+    flex: 1,
     backgroundColor: '#FFCB37',
   },
   container: {
     flex: 1,
     alignItems: 'center',
     paddingTop: 30,
-    paddingBottom: 150,
+    paddingBottom: 190,
     backgroundColor: '#fff',
   },
   profilePic: {

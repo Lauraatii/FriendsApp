@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { auth } from '../../../firebaseConfig';
 
@@ -28,8 +28,9 @@ const MeetingPreferenceScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Who do you want to meet?</Text>
+    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Who do you want to meet?</Text>
 
       <TouchableOpacity 
         style={[styles.option, selectedOption === 'male' && styles.selectedOption]} 
@@ -53,13 +54,18 @@ const MeetingPreferenceScreen = ({ navigation }) => {
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={handleNext}>
-        <Text style={styles.buttonText}>Next</Text>
-      </TouchableOpacity>
-    </View>
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollViewContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -81,20 +87,20 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   selectedOption: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#FDDA64',
   },
   optionText: {
     textAlign: 'center',
     fontWeight: 'bold',
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#FFCB37',
     padding: 15,
     borderRadius: 8,
     width: '80%',
   },
   buttonText: {
-    color: 'white',
+    color: 'black',
     textAlign: 'center',
     fontWeight: 'bold',
   },

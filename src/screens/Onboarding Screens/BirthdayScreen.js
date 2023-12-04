@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios'; 
 import { auth } from '../../../firebaseConfig';
 
@@ -41,23 +41,29 @@ const BirthdayScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>What's your birthday?</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="dd/mm/yyyy"
-        value={birthday}
-        onChangeText={(text) => setBirthday(formatBirthday(text))}
-        keyboardType="numeric"
-      />
-      <TouchableOpacity style={styles.button} onPress={handleNext}>
-        <Text style={styles.buttonText}>Next</Text>
-      </TouchableOpacity>
-    </View>
+    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+      <View style={styles.container}>
+        <Text style={styles.title}>What's your birthday?</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="dd/mm/yyyy"
+          value={birthday}
+          onChangeText={(text) => setBirthday(formatBirthday(text))}
+          keyboardType="numeric"
+        />
+        <TouchableOpacity style={styles.button} onPress={handleNext}>
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollViewContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -79,13 +85,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#FFCB37',
     padding: 15,
     borderRadius: 8,
     width: '80%',
   },
   buttonText: {
-    color: 'white',
+    color: 'black',
     textAlign: 'center',
     fontWeight: 'bold',
   },

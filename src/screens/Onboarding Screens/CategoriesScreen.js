@@ -1,14 +1,27 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import axios from 'axios';
 import { auth } from '../../../firebaseConfig';
 
 const CategoriesScreen = ({ navigation }) => {
   const categories = [
-    'Introverts', 'Extroverts', 'Adventurers', 'Artists', 'Techies',
-    'Foodies', 'Travelers', 'Bookworms', 'Fitness Buffs', 'Movie Buffs',
-    'Gamers', 'Musicians', 'Photographers', 'Writers', 'Scientists'
-  ]; 
+    'Introverts 🤫', 
+    'Extroverts 🤗', 
+    'Adventurers 🚵', 
+    'Artists 🎨', 
+    'Techies 💻',
+    'Foodies 🍔', 
+    'Travelers ✈️', 
+    'Bookworms 📚', 
+    'Fitness Buffs 🏋️‍♀️', 
+    'Movie Buffs 🎬',
+    'Gamers 🎮', 
+    'Musicians 🎵', 
+    'Photographers 📸', 
+    'Writers ✍️', 
+    'Scientists 🔬'
+  ];
+  
   const [selectedCategories, setSelectedCategories] = useState([]);
 
   const handleSelectCategory = (category) => {
@@ -45,6 +58,7 @@ const CategoriesScreen = ({ navigation }) => {
   );
 
   return (
+    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
     <View style={styles.container}>
       <Text style={styles.title}>Select Categories</Text>
       <FlatList
@@ -53,15 +67,21 @@ const CategoriesScreen = ({ navigation }) => {
         keyExtractor={(item) => item}
         numColumns={2} 
         columnWrapperStyle={styles.row}
+        scrollEnabled={false} 
       />
       <TouchableOpacity style={styles.button} onPress={handleNext}>
         <Text style={styles.buttonText}>Next</Text>
       </TouchableOpacity>
     </View>
-  );
+  </ScrollView>
+);
 };
 
 const styles = StyleSheet.create({
+  scrollViewContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
     padding: 20,
@@ -89,7 +109,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectedOption: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#FDDA64',
   },
   optionText: {
     textAlign: 'center',
@@ -97,7 +117,7 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#FFCB37',
     padding: 15,
     borderRadius: 8,
     marginTop: 0,
@@ -106,7 +126,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: 'white',
+    color: 'black',
     fontWeight: 'bold',
   },
 });
