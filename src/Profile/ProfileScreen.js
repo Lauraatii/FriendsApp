@@ -3,6 +3,7 @@ import { Alert, View, Text, StyleSheet, Button, Image, ScrollView, TouchableOpac
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { auth } from "/Users/computer/Desktop/FriendApp/firebaseConfig.js";
 import { signOut } from 'firebase/auth';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const ProfileScreen = ({ navigation }) => {
   const [userData, setUserData] = useState(null);
@@ -26,6 +27,13 @@ const ProfileScreen = ({ navigation }) => {
   );
 
   useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={() => navigation.navigate('SettingsScreen')}>
+          <Icon name="cog" size={24} color="#000" style={{ marginRight: 15 }} />
+        </TouchableOpacity>
+      ),
+    });
     const fetchUserData = async () => {
       const db = getFirestore();
       const userRef = doc(db, 'users', auth.currentUser.uid);
@@ -72,7 +80,7 @@ const ProfileScreen = ({ navigation }) => {
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
         <Image
-          source={{ uri: userData?.profilePicture || 'https://via.placeholder.com/200' }}
+          source={{ uri: userData?.profilePicture || 'https://via.placeholder.com/150' }}
           style={styles.profilePic}
         />
         <Text style={styles.nameAge}>
@@ -82,9 +90,9 @@ const ProfileScreen = ({ navigation }) => {
 
         <View style={styles.aboutMeCard}>
           <Text style={styles.infoTitle}>About Me</Text>
-          <Text style={styles.infoText}>Bio: {userData?.bio}</Text>
-          <Text style={styles.infoText}>Gender: {userData?.gender}</Text>
-          <Text style={styles.infoText}>Interested in: {userData?.meetingPreference}</Text>
+          <Text style={styles.infoText}>{userData?.bio}</Text>
+          {/* <Text style={styles.infoText}>Gender: {userData?.gender}</Text>
+          <Text style={styles.infoText}>Interested in: {userData?.meetingPreference}</Text> */}
 
           <View style={styles.categoryContainer}>
             <Text style={styles.categoryTitle}>Categories:</Text>
@@ -102,10 +110,6 @@ const ProfileScreen = ({ navigation }) => {
           <Text style={styles.buttonText}>Edit Profile</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.settingsButton} onPress={() => navigation.navigate('SettingsScreen')}>
-          <Text style={styles.buttonText}>Settings</Text>
-        </TouchableOpacity>
-
         <Button title="Sign Out" onPress={handleSignOut} color="#d9534f" />
       </View>
     </ScrollView>
@@ -114,26 +118,27 @@ const ProfileScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   scrollView: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#FFCB37',
   },
   container: {
     flex: 1,
     alignItems: 'center',
     paddingTop: 30,
-    paddingBottom: 20,
+    paddingBottom: 150,
     backgroundColor: '#fff',
   },
   profilePic: {
-    width: 200,
-    height: 200,
+    width: 150,
+    height: 150,
     borderRadius: 100,
     borderWidth: 4,
-    borderColor: '#007bff',
+    borderColor: '#FFCB37',
     marginBottom: 15,
   },
   nameAge: {
     fontSize: 28,
     fontWeight: 'bold',
+    color: '#333',
   },
   subText: {
     fontSize: 16,
@@ -155,7 +160,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   editButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#FFCB37',
     padding: 12,
     borderRadius: 25,
     width: '90%',
@@ -163,7 +168,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   settingsButton: {
-    backgroundColor: 'gray',
+    backgroundColor: '#fff7d9',
     padding: 12,
     borderRadius: 25,
     width: '90%',
@@ -171,11 +176,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   buttonText: {
-    color: '#fff',
+    color: '#000000',
     fontWeight: 'bold',
   },
   categoryBubble: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#FDDA64',
     borderRadius: 20,
     paddingVertical: 5,
     paddingHorizontal: 10,
@@ -186,7 +191,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
 },
   categoryText: {
-    color: '#fff',
+    color: '#000000',
     fontSize: 14,
     padding: 5,
   },
@@ -197,7 +202,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   aboutMeCard: {
-    backgroundColor: '#eef2f5', 
+    backgroundColor: '#fff7d9', 
     borderRadius: 10,
     padding: 15,
     marginBottom: 20,

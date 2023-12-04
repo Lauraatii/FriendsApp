@@ -39,6 +39,8 @@ const HomeScreen = ({ navigation }) => {
         data={categories}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
+        numColumns={2}
+        key={'_'}
         showsVerticalScrollIndicator={false}
       />
     </View>
@@ -48,27 +50,34 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#f0f0f0', // Light gray background for a softer look
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: '#333', 
     marginBottom: 20,
   },
   itemContainer: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#FFCB37', 
     borderRadius: 8,
     padding: 15,
     alignItems: 'center',
     marginBottom: 10,
-    width: '100%',
+    marginHorizontal: 5,
+    width: '45%',
+    elevation: 3, 
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   itemText: {
-    color: 'white',
-    fontSize: 20,
+    color: '#000000',
+    fontSize: 18, 
   },
 });
 

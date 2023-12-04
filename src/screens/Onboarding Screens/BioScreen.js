@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { auth } from '../../../firebaseConfig';
 import axios from 'axios'; 
 
@@ -28,24 +28,30 @@ const BioScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Your Bio</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Tell us about yourself"
-        value={bio}
-        onChangeText={setBio}
-        multiline
-        numberOfLines={4}
-      />
-      <TouchableOpacity style={styles.button} onPress={handleNext}>
-        <Text style={styles.buttonText}>Next</Text>
-      </TouchableOpacity>
-    </View>
+    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Your Bio</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Tell us about yourself"
+          value={bio}
+          onChangeText={setBio}
+          multiline
+          numberOfLines={4}
+        />
+        <TouchableOpacity style={styles.button} onPress={handleNext}>
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollViewContainer: {
+    flexGrow: 1,
+    justifyContent: 'center', 
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
