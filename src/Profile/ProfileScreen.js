@@ -34,6 +34,16 @@ const ProfileScreen = ({ navigation }) => {
         </TouchableOpacity>
       ),
     });
+
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchUserData();
+    });
+
+    fetchUserData();
+
+    return unsubscribe;
+  }, [navigation]);
+
     const fetchUserData = async () => {
       const db = getFirestore();
       const userRef = doc(db, 'users', auth.currentUser.uid);
@@ -50,8 +60,6 @@ const ProfileScreen = ({ navigation }) => {
       }
     };
 
-    fetchUserData();
-  }, []);
 
   const handleSignOut = () => {
     Alert.alert(
@@ -125,7 +133,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingTop: 30,
-    paddingBottom: 190,
+    paddingBottom: 210,
     backgroundColor: '#fff',
   },
   profilePic: {
@@ -190,6 +198,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 5,
+    top: 5,
 },
   categoryText: {
     color: '#000000',
