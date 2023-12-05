@@ -19,8 +19,14 @@ const CategoriesScreen = ({ navigation }) => {
     'Musicians 🎵', 
     'Photographers 📸', 
     'Writers ✍️', 
-    'Scientists 🔬'
-  ];
+    'Scientists 🔬',     
+    'Eco-Friendly Living 🌱', 
+    'DIY Projects 🛠️', 
+    'Yoga Enthusiasts 🧘‍♀️', 
+    "Language Learners 🗣️",
+    "Pet Lovers 🐾", 
+    "Volunteering & Social Impact 💖",
+    ];
   
   const [selectedCategories, setSelectedCategories] = useState([]);
 

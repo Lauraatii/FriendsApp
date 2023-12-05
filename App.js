@@ -17,6 +17,7 @@ import SettingsScreen from './src/Profile/SettingsScreen';
 import EditProfile from './src/Profile/EditProfile';
 import ProfileScreen from './src/Profile/ProfileScreen';
 import HomeScreen from './src/screens/TabNav/HomeScreen';
+import CategoryProfiles from './src/screens/CategoryProfiles';
 import BioScreen from './src/screens/Onboarding Screens/BioScreen';
 
 const Stack = createNativeStackNavigator();
@@ -42,6 +43,8 @@ export default function App() {
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
         <Stack.Screen name="HomeScreen" component={HomeScreen} />
+        <Stack.Screen name="CategoryProfiles" component={CategoryProfiles} />
+
         
 
 
