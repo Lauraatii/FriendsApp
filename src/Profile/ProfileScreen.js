@@ -97,7 +97,7 @@ const ProfileScreen = ({ navigation }) => {
         <Text style={styles.subText}>📍 {userData?.country}</Text>
 
         <View style={styles.aboutMeCard}>
-          <Text style={styles.infoTitle}>About Me</Text>
+          <Text style={styles.infoTitle}>About</Text>
           <Text style={styles.infoText}>{userData?.bio}</Text>
           {/* <Text style={styles.infoText}>Gender: {userData?.gender}</Text>
           <Text style={styles.infoText}>Interested in: {userData?.meetingPreference}</Text> */}
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   categoryBubble: {
-    backgroundColor: '#FDDA64',
+    backgroundColor: '#5967EB',
     borderRadius: 20,
     paddingVertical: 5,
     paddingHorizontal: 10,
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     top: 5,
 },
   categoryText: {
-    color: '#000000',
+    color: '#fff',
     fontSize: 14,
     padding: 5,
   },

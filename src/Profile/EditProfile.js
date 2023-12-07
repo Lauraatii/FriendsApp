@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   selectedCategory: {
-    backgroundColor: '#FDDA64',
+    backgroundColor: '#5967EB',
     borderRadius: 20,
     paddingVertical: 5,
     paddingHorizontal: 10,
