@@ -39,9 +39,6 @@ const HomeScreen = () => {
   const diyImage = require('../../assets/images/diy.png'); 
 
 
-
-
-
   const handleCategoryPress = (category) => {
     // Navigate to new screen with the selected category
     navigation.navigate('CategoryProfiles', { category });

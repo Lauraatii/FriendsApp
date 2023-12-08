@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Animated } from 'react-native';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const CategoryProfiles = ({ route, navigation }) => {
   const { category } = route.params;
   const [profiles, setProfiles] = useState([]);
+  const scaleAnim = useRef(new Animated.Value(1)).current; 
 
   const calculateAge = (birthday) => {
     if (!birthday) return '';
@@ -14,7 +16,6 @@ const CategoryProfiles = ({ route, navigation }) => {
     const ageDate = new Date(ageDifMs);
     return Math.abs(ageDate.getUTCFullYear() - 1970);
   };
-  
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -37,23 +38,42 @@ const CategoryProfiles = ({ route, navigation }) => {
   }, [category]);
 
   const handleProfilePress = (userId) => {
-    // Navigate to user profile screen
     navigation.navigate('UserProfile', { userId });
   };
 
+  const handleSendMessage = (userId) => {
+    navigation.navigate('MessagesScreen', { recipientId: userId });
+  };
+  
+
+  const handleProfileInteraction = () => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, { toValue: 0.95, duration: 150, useNativeDriver: true }),
+      Animated.timing(scaleAnim, { toValue: 1, duration: 150, useNativeDriver: true }),
+    ]).start();
+  };
+
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.profileContainer} onPress={() => handleProfilePress(item.id)}>
-      <Image
-        source={{ uri: item.profilePicture || 'https://via.placeholder.com/150' }}
-        style={styles.profilePic}
-      />
-      <View style={styles.profileInfo}>
-        <Text style={styles.nameAge}>
-          {item.name}{item.birthday ? `, ${calculateAge(item.birthday)}` : ''}
-        </Text>
-        <Text style={styles.subText}>📍 {item.country}</Text>
-        <Text numberOfLines={2} style={styles.bioText}>{item.bio}</Text>
-      </View>
+    <TouchableOpacity onPress={() => { handleProfilePress(item.id); handleProfileInteraction(); }}>
+      <Animated.View style={[styles.profileCard, { transform: [{ scale: scaleAnim }] }]}>
+        <View style={styles.cardContent}>
+          <Image
+            source={{ uri: item.profilePicture || 'https://via.placeholder.com/150' }}
+            style={styles.profilePic}
+          />
+          <View style={styles.profileInfo}>
+            <Text style={styles.nameAge}>
+              {item.name}{item.birthday ? `, ${calculateAge(item.birthday)}` : ''}
+            </Text>
+            <Text style={styles.subText}>📍 {item.country}</Text>
+            <Text numberOfLines={2} style={styles.bioText}>{item.bio}</Text>
+          </View>
+          <TouchableOpacity style={styles.messageButton} onPress={() => handleSendMessage(item.id)}>
+            <Icon name="comment" size={20} color="#fff" />
+            <Text style={styles.messageButtonText}>Chat</Text>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
     </TouchableOpacity>
   );
 
@@ -76,39 +96,66 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 10,
+    color: '#5967EB',
+    marginBottom: 15,
+    textAlign: 'center',
   },
-  profileContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#fff7d9',
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 10,
+  profileCard: {
+    backgroundColor: '#F3F4F6',
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 10,
+    marginBottom: 20,
+    padding: 20,
     alignItems: 'center',
   },
+  cardContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   profilePic: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginRight: 10,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 15,
   },
   profileInfo: {
-    flex: 1,
+    alignItems: 'center',
   },
   nameAge: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
+    color: '#31456A',
   },
   subText: {
-    fontSize: 14,
-    color: 'gray',
+    fontSize: 16,
+    color: '#6877AD',
+    marginBottom: 10,
   },
   bioText: {
-    fontSize: 14,
-    color: 'black',
-    marginTop: 5,
+    fontSize: 16,
+    color: '#31456A',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  messageButton: {
+    backgroundColor: '#5967EB',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 30,
+    marginTop: 10,
+  },
+  messageButtonText: {
+    color: '#fff',
+    marginLeft: 5,
+    fontSize: 16,
   },
 });
 
