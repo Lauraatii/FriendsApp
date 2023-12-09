@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { getFirestore, collection, addDoc, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
-import { auth } from "/Users/computer/Desktop/FriendApp/firebaseConfig.js"; // Import auth
+import { auth } from "/Users/computer/Desktop/FriendApp/firebaseConfig.js";
+import moment from 'moment';
 
 const MessagesScreen = ({ route }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const flatListRef = useRef();
   const db = getFirestore();
   const currentUserID = auth.currentUser.uid;
-  const recipientId = route.params?.recipientId; 
-
+  const recipientId = route.params?.recipientId;
 
   useEffect(() => {
     const userIdsCombined = [currentUserID, recipientId].sort().join('_');
@@ -24,7 +25,7 @@ const MessagesScreen = ({ route }) => {
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const msgs = [];
       querySnapshot.forEach((doc) => {
-        msgs.push({ id: doc.id, ...doc.data() });
+        msgs.unshift({ id: doc.id, ...doc.data() });
       });
       setMessages(msgs);
     });
@@ -35,7 +36,6 @@ const MessagesScreen = ({ route }) => {
   const sendMessage = async (message) => {
     if (!message) return;
   
-    // Ensure the IDs are in a consistent order
     const userIdsCombined = [currentUserID, recipientId].sort().join('_');
   
     await addDoc(collection(db, 'messages'), {
@@ -48,17 +48,40 @@ const MessagesScreen = ({ route }) => {
     setNewMessage('');
   };
 
+  const formatDate = (timestamp) => {
+    const date = moment(timestamp.toDate());
+    if (moment().diff(date, 'days') < 1) {
+      return 'Today';
+    } else if (moment().diff(date, 'days') < 2) {
+      return 'Yesterday';
+    } else {
+      return date.format('MMM Do');
+    }
+  };
+
+  const renderItem = ({ item }) => (
+    <View style={[
+      styles.messageBubble, 
+      item.userIds[0] === currentUserID ? styles.sentMessage : styles.receivedMessage
+    ]}>
+      <Text style={styles.messageText}>{item.text}</Text>
+      <Text style={styles.messageDate}>{formatDate(item.createdAt)}</Text>
+    </View>
+  );
+
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <FlatList
+        ref={flatListRef}
         data={messages}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.messageCard}>
-            <Text style={styles.messageText}>{item.text}</Text>
-          </TouchableOpacity>
-        )}
+        renderItem={renderItem}
         keyExtractor={item => item.id}
+        inverted
+        contentContainerStyle={styles.messagesList}
       />
+      <TouchableOpacity onPress={() => flatListRef.current?.scrollToOffset({ animated: true, offset: 0 })} style={styles.scrollToBottomButton}>
+        <Text style={styles.scrollToBottomText}>↓</Text>
+      </TouchableOpacity>
       <View style={styles.messageInputContainer}>
         <TextInput
           style={styles.messageInput}
@@ -70,23 +93,36 @@ const MessagesScreen = ({ route }) => {
           <Text style={styles.sendButtonText}>Send</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: 25,
   },
-  messageCard: {
+  messageBubble: {
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 20,
+    marginVertical: 5,
+    maxWidth: '80%',
+  },
+  sentMessage: {
+    backgroundColor: '#FFCB37',
+    alignSelf: 'flex-end',
+  },
+  receivedMessage: {
     backgroundColor: '#E0E0E0',
-    marginBottom: 10,
+    alignSelf: 'flex-start',
   },
   messageText: {
     fontSize: 16,
+  },
+  messageDate: {
+    fontSize: 12,
+    color: '#686868',
+    marginTop: 5,
   },
   sendButton: {
     padding: 10,
@@ -101,7 +137,8 @@ const styles = StyleSheet.create({
   messageInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 150,
+    paddingTop: 10,
+    paddingBottom: Platform.OS === "ios" ? 20 : 10,
   },
   messageInput: {
     flex: 1,
@@ -109,6 +146,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     marginRight: 10,
     borderRadius: 5,
+  },
+  scrollToBottomButton: {
+    position: 'absolute',
+    right: 20,
+    bottom: 70,
+    backgroundColor: '#5967EB',
+    borderRadius: 20,
+    padding: 8,
+  },
+  scrollToBottomText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });
 
