@@ -1,93 +1,210 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
-import { getFirestore, collection, addDoc, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import React, { useState, useEffect } from 'react';
+import { View, Text, SectionList, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import { getFirestore, collection, addDoc, query, where, orderBy, limit, onSnapshot, doc, getDoc, updateDoc, getDocs } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth } from "/Users/computer/Desktop/FriendApp/firebaseConfig.js";
 import moment from 'moment';
+import * as ImagePicker from 'expo-image-picker';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { useMessagesContext } from './MessagesContext'; // Importing the context hook
 
 const MessagesScreen = ({ route }) => {
-  const [messages, setMessages] = useState([]);
+  const [messageSections, setMessageSections] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const flatListRef = useRef();
+  const [recipientProfile, setRecipientProfile] = useState({ name: '', photoUrl: 'https://via.placeholder.com/150' });
   const db = getFirestore();
+  const storage = getStorage();
   const currentUserID = auth.currentUser.uid;
   const recipientId = route.params?.recipientId;
+  const { setUnreadMessagesCount } = useMessagesContext();
 
   useEffect(() => {
-    const userIdsCombined = [currentUserID, recipientId].sort().join('_');
+    const fetchRecipientProfile = async () => {
+      try {
+        const recipientSnap = await getDoc(doc(db, 'users', recipientId));
+        if (recipientSnap.exists()) {
+          const recipientData = recipientSnap.data();
+          setRecipientProfile({
+            name: recipientData.name || '',
+            photoUrl: recipientData.profilePicture || 'https://via.placeholder.com/150'
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching recipient profile:", error);
+      }
+    };
 
-    const q = query(
-      collection(db, 'messages'), 
-      where('userIdsCombined', '==', userIdsCombined),
-      orderBy('createdAt', 'desc'), 
-      limit(50)
-    );
+    fetchRecipientProfile();
+
+    const userIdsCombined = [currentUserID, recipientId].sort().join('_');
+    const q = query(collection(db, 'messages'), where('userIdsCombined', '==', userIdsCombined), orderBy('createdAt'), limit(50));
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const msgs = [];
-      querySnapshot.forEach((doc) => {
-        msgs.unshift({ id: doc.id, ...doc.data() });
-      });
-      setMessages(msgs);
+      const msgs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      groupMessagesByDate(msgs);
+      updateUnreadCount();
     });
 
     return () => unsubscribe();
   }, [currentUserID, recipientId]);
 
-  const sendMessage = async (message) => {
-    if (!message) return;
-  
-    const userIdsCombined = [currentUserID, recipientId].sort().join('_');
-  
-    await addDoc(collection(db, 'messages'), {
-      userIds: [currentUserID, recipientId],
-      userIdsCombined, 
-      text: message,
-      createdAt: new Date(),
-    });
-  
-    setNewMessage('');
+  const groupMessagesByDate = (messages) => {
+    const grouped = messages.reduce((acc, message) => {
+      const date = moment(message.createdAt.toDate()).format('YYYY-MM-DD');
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(message);
+      return acc;
+    }, {});
+
+    const sections = Object.keys(grouped).map(date => ({
+      title: formatDateForSection(moment(date, 'YYYY-MM-DD')),
+      data: grouped[date]
+    }));
+
+    setMessageSections(sections);
   };
 
-  const formatDate = (timestamp) => {
-    const date = moment(timestamp.toDate());
-    if (moment().diff(date, 'days') < 1) {
+  const formatDateForSection = (momentDate) => {
+    if (moment().isSame(momentDate, 'day')) {
       return 'Today';
-    } else if (moment().diff(date, 'days') < 2) {
+    } else if (moment().subtract(1, 'days').isSame(momentDate, 'day')) {
       return 'Yesterday';
     } else {
-      return date.format('MMM Do');
+      return momentDate.format('MMM Do, YYYY');
     }
   };
 
-  const renderItem = ({ item }) => (
+  const sendMessage = async (message, imageUrl = null) => {
+    if (!message && !imageUrl) return;
+
+    const userIdsCombined = [currentUserID, recipientId].sort().join('_');
+    const messageData = {
+      userIds: [currentUserID, recipientId],
+      userIdsCombined,
+      text: message || '',
+      createdAt: new Date(),
+      isRead: false
+    };
+
+    if (imageUrl) {
+      messageData.imageUrl = imageUrl;
+    }
+
+    await addDoc(collection(db, 'messages'), messageData);
+    setNewMessage('');
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.cancelled && result.assets && result.assets.length > 0) {
+      const selectedImageUri = result.assets[0].uri;
+      uploadImage(selectedImageUri);
+    }
+  };
+
+  const uriToBlob = (uri) => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = () => {
+        resolve(xhr.response);
+      };
+      xhr.onerror = (e) => {
+        reject(new Error('Network request failed'));
+      };
+      xhr.responseType = 'blob';
+      xhr.open('GET', uri, true);
+      xhr.send(null);
+    });
+  };
+
+  const uploadImage = async (uri) => {
+    try {
+      const blob = await uriToBlob(uri);
+      const imageRef = ref(storage, `chatImages/${currentUserID}_${Date.now()}`);
+      await uploadBytes(imageRef, blob);
+      const imageUrl = await getDownloadURL(imageRef);
+      sendMessage('', imageUrl); 
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
+  };
+// Mark messages as read and update unread count
+const markMessagesAsRead = async () => {
+  const unreadMessagesQuery = query(
+    collection(db, 'messages'),
+    where('userIdsCombined', '==', [currentUserID, recipientId].sort().join('_')),
+    where('isRead', '==', false),
+    where('userIds', 'array-contains', recipientId) 
+  );
+
+  const unreadSnapshot = await getDocs(unreadMessagesQuery);
+  unreadSnapshot.forEach((doc) => {
+    updateDoc(doc.ref, { isRead: true });
+  });
+};
+const updateUnreadCount = async () => {
+  await markMessagesAsRead();
+  fetchUnreadMessagesCount();
+};
+
+const fetchUnreadMessagesCount = async () => {
+  const unreadMessagesQuery = query(
+    collection(db, 'messages'),
+    where('userIds', 'array-contains', currentUserID),
+    where('isRead', '==', false)
+  );
+
+  const unreadSnapshot = await getDocs(unreadMessagesQuery);
+  const unreadCount = unreadSnapshot.size;
+  setUnreadMessagesCount(unreadCount);
+};
+
+  const renderMessage = ({ item }) => (
     <View style={[
       styles.messageBubble, 
       item.userIds[0] === currentUserID ? styles.sentMessage : styles.receivedMessage
     ]}>
       <Text style={styles.messageText}>{item.text}</Text>
-      <Text style={styles.messageDate}>{formatDate(item.createdAt)}</Text>
+    </View>
+  );
+
+  const renderSectionHeader = ({ section: { title } }) => (
+    <View style={styles.sectionHeader}>
+      <Text style={styles.sectionHeaderText}>{title}</Text>
     </View>
   );
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        inverted
+      <View style={styles.header}>
+        <Image source={{ uri: recipientProfile.photoUrl }} style={styles.profileImage} />
+        <Text style={styles.profileName}>{recipientProfile.name}</Text>
+      </View>
+      <SectionList
+        sections={messageSections}
+        keyExtractor={(item, index) => item.id + index}
+        renderItem={renderMessage}
+        renderSectionHeader={renderSectionHeader}
         contentContainerStyle={styles.messagesList}
       />
-      <TouchableOpacity onPress={() => flatListRef.current?.scrollToOffset({ animated: true, offset: 0 })} style={styles.scrollToBottomButton}>
-        <Text style={styles.scrollToBottomText}>↓</Text>
-      </TouchableOpacity>
       <View style={styles.messageInputContainer}>
+      <TouchableOpacity onPress={pickImage} style={styles.attachmentIcon}>
+        <Icon name="paperclip" size={24} color="#5967EB" />
+      </TouchableOpacity>
         <TextInput
           style={styles.messageInput}
           value={newMessage}
           onChangeText={setNewMessage}
-          placeholder="Type a message"
+          placeholder="Type a message..."
+          placeholderTextColor="#888"
         />
         <TouchableOpacity onPress={() => sendMessage(newMessage)} style={styles.sendButton}>
           <Text style={styles.sendButtonText}>Send</Text>
@@ -100,13 +217,34 @@ const MessagesScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 25,
+    backgroundColor: '#F5F5F5',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 30,
+    marginRight: 20,
+    left:10
+  },
+  profileName: {
+    fontSize: 18,
+    fontWeight: 'bold'
   },
   messageBubble: {
     padding: 15,
     borderRadius: 20,
     marginVertical: 5,
     maxWidth: '80%',
+    alignSelf: 'flex-start',
+    marginHorizontal: 10,
   },
   sentMessage: {
     backgroundColor: '#FFCB37',
@@ -114,15 +252,17 @@ const styles = StyleSheet.create({
   },
   receivedMessage: {
     backgroundColor: '#E0E0E0',
-    alignSelf: 'flex-start',
   },
   messageText: {
     fontSize: 16,
   },
-  messageDate: {
-    fontSize: 12,
+  sectionHeader: {
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  sectionHeaderText: {
+    fontSize: 14,
     color: '#686868',
-    marginTop: 5,
   },
   sendButton: {
     padding: 10,
@@ -138,7 +278,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingTop: 10,
-    paddingBottom: Platform.OS === "ios" ? 20 : 10,
+    paddingBottom: Platform.OS === "ios" ? 50 : 10,
+    paddingHorizontal: 20,
+  },
+  attachmentIcon: {
+    marginRight: 10,
   },
   messageInput: {
     flex: 1,
@@ -147,17 +291,9 @@ const styles = StyleSheet.create({
     marginRight: 10,
     borderRadius: 5,
   },
-  scrollToBottomButton: {
-    position: 'absolute',
-    right: 20,
-    bottom: 70,
-    backgroundColor: '#5967EB',
-    borderRadius: 20,
-    padding: 8,
-  },
-  scrollToBottomText: {
-    color: '#fff',
-    fontSize: 16,
+  messagesList: {
+    paddingBottom: 20,
+    paddingHorizontal: 10,
   },
 });
 

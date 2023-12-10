@@ -1,14 +1,18 @@
 import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Ionicons from 'react-native-vector-icons/Ionicons'; 
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useMessagesContext } from './MessagesContext';
 
-import HomeScreen from './HomeScreen'; 
-import AllMessagesScreen from './AllMessagesScreen'; 
+import HomeScreen from './HomeScreen';
+import AllMessagesScreen from './AllMessagesScreen';
 import ProfileScreen from '../../Profile/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
 function MyTabs() {
+  const { unreadMessagesCount } = useMessagesContext();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -18,12 +22,22 @@ function MyTabs() {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Messages') {
             iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+            return (
+              <View style={{ width: 24, height: 24, margin: 5 }}>
+                <Ionicons name={iconName} size={size} color={color} />
+                {unreadMessagesCount > 0 && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{unreadMessagesCount}</Text>
+                  </View>
+                )}
+              </View>
+            );
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person-circle' : 'person-circle-outline';
           }
-          return <Ionicons name={iconName} size={26} color={color} />;
+          return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarShowLabel: false, 
+        tabBarShowLabel: false,
         tabBarActiveTintColor: 'black',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
@@ -52,5 +66,24 @@ function MyTabs() {
     </Tab.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  badge: {
+    position: 'absolute',
+    right: -6,
+    top: -3,
+    backgroundColor: 'red',
+    borderRadius: 6,
+    width: 12,
+    height: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+});
 
 export default MyTabs;

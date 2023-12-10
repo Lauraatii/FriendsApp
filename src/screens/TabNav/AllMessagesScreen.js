@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image, RefreshControl } from 'react-native';
 import { getFirestore, collection, query, where, getDocs, doc, getDoc, orderBy, limit } from 'firebase/firestore';
 import { auth } from "/Users/computer/Desktop/FriendApp/firebaseConfig.js";
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { useMessagesContext } from './MessagesContext';
 
 const AllMessagesScreen = ({ navigation }) => {
   const [conversations, setConversations] = useState([]);
@@ -9,12 +11,17 @@ const AllMessagesScreen = ({ navigation }) => {
   const db = getFirestore();
   const currentUserID = auth.currentUser.uid;
   const convoImage = require('../../assets/images/convo.png'); 
+  const { setUnreadMessagesCount } = useMessagesContext();
 
-  // Function to fetch conversations
+  useEffect(() => {
+    fetchConversations();
+  }, []);
+
   const fetchConversations = async () => {
     setRefreshing(true);
     const uniqueRecipientIds = new Set();
     const fetchedConversations = [];
+
     const conversationsQuery = query(collection(db, 'messages'), where('userIds', 'array-contains', currentUserID));
     const querySnapshot = await getDocs(conversationsQuery);
 
@@ -24,6 +31,15 @@ const AllMessagesScreen = ({ navigation }) => {
 
       if (recipientId && !uniqueRecipientIds.has(recipientId)) {
         uniqueRecipientIds.add(recipientId);
+
+        const unreadCountQuery = query(
+          collection(db, 'messages'),
+          where('userIdsCombined', '==', [currentUserID, recipientId].sort().join('_')),
+          where('isRead', '==', false),
+          where('userIds', 'array-contains', currentUserID)
+        );
+        const unreadCountSnapshot = await getDocs(unreadCountQuery);
+        const unreadCount = unreadCountSnapshot.size;
 
         const [recipientSnap, lastMessageSnapshot] = await Promise.all([
           getDoc(doc(db, 'users', recipientId)),
@@ -45,22 +61,29 @@ const AllMessagesScreen = ({ navigation }) => {
             recipientName: recipientData.name, 
             recipientImage: recipientData.profilePicture,
             lastMessage: lastMessageData.text,
+            unreadCount,
             ...data
           });
         }
       }
     }
-
     setConversations(fetchedConversations);
     setRefreshing(false);
+    updateUnreadMessagesCount();
   };
 
-  // useEffect to fetch conversations on component mount
-  useEffect(() => {
-    fetchConversations();
-  }, []);
+  const updateUnreadMessagesCount = async () => {
+    const unreadMessagesQuery = query(
+      collection(db, 'messages'),
+      where('userIds', 'array-contains', currentUserID),
+      where('isRead', '==', false)
+    );
+  
+    const unreadSnapshot = await getDocs(unreadMessagesQuery);
+    const unreadCount = unreadSnapshot.size;
+    setUnreadMessagesCount(unreadCount);
+  };
 
-  // Function to render each item
   const renderItem = ({ item }) => (
     <TouchableOpacity 
       onPress={() => navigation.navigate('MessagesScreen', { recipientId: item.recipientId })}
@@ -73,13 +96,22 @@ const AllMessagesScreen = ({ navigation }) => {
       <View style={styles.textContainer}>
         <Text style={styles.nameText}>{item.recipientName || 'Unknown'}</Text>
         <Text style={styles.lastMessageText}>{item.lastMessage}</Text>
+        {item.unreadCount > 0 && (
+          <View style={styles.unreadBadge}>
+            <Text style={styles.unreadBadgeText}>{item.unreadCount}</Text>
+          </View>
+        )}
       </View>
+      <Icon name="angle-right" size={20} color="#5967EB" />
     </TouchableOpacity>
   );
 
-  // Main component return
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Messages</Text>
+        <Icon name="plus" size={24} color="#5967EB" onPress={() => {/* Navigate to new conversation screen */}} />
+      </View>
       {conversations.length > 0 ? (
         <FlatList
           data={conversations}
@@ -99,49 +131,62 @@ const AllMessagesScreen = ({ navigation }) => {
   );
 };
 
-// Styles for the component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FAFAFA',
   },
   conversationCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 15,
-    borderRadius: 10,
-    backgroundColor: '#F3F4F6',
-    marginBottom: 10,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    marginVertical: 5,
+    marginHorizontal: 10,
+    elevation: 1,
+    shadowRadius: 2,
+    shadowOpacity: 0.1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#31456A',
   },
   profilePic: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     marginRight: 15,
   },
   textContainer: {
     flex: 1,
+    justifyContent: 'center',
   },
   nameText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 4,
   },
   lastMessageText: {
     fontSize: 14,
     color: '#686868',
+    marginTop: 4,
   },
   emptyStateContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: -50,
   },
   emptyStateImage: {
     width: 200,
@@ -149,9 +194,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   emptyStateText: {
-    textAlign: 'center',
     fontSize: 16,
     color: '#686868',
+    textAlign: 'center',
+  },
+  unreadBadge: {
+    backgroundColor: 'red',
+    borderRadius: 12,
+    padding: 4,
+    position: 'absolute',
+    right: 15,
+    top: 10
+  },
+  unreadBadgeText: {
+    color: 'white',
+    fontSize: 12,
   },
 });
 

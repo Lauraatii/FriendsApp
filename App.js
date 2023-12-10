@@ -20,12 +20,13 @@ import HomeScreen from './src/screens/TabNav/HomeScreen';
 import CategoryProfiles from './src/screens/CategoryProfiles';
 import BioScreen from './src/screens/Onboarding Screens/BioScreen';
 import MessagesScreen from './src/screens/TabNav/MessagesScreen';
-
+import { MessagesProvider } from './src/screens/TabNav/MessagesContext';
 const Stack = createNativeStackNavigator();
 
 
 export default function App() {
   return (
+    <MessagesProvider>
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Signup" component={Signup} />
@@ -46,10 +47,12 @@ export default function App() {
         <Stack.Screen name="HomeScreen" component={HomeScreen} />
         <Stack.Screen name="CategoryProfiles" component={CategoryProfiles} />
         <Stack.Screen name="MessagesScreen" component={MessagesScreen} />
-        
+        <Stack.Screen name="MessagesProvider" component={MessagesProvider} />
+
 
 
       </Stack.Navigator>
     </NavigationContainer>
+    </MessagesProvider>
   );
 }
