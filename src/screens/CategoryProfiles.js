@@ -1,12 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Animated, Modal, ScrollView, Button, ActivityIndicator } from 'react-native';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { auth } from '../../firebaseConfig';
 
 const CategoryProfiles = ({ route, navigation }) => {
   const { category } = route.params;
   const [profiles, setProfiles] = useState([]);
+  const [isFilterModalVisible, setFilterModalVisible] = useState(false);
+  const [selectedGender, setSelectedGender] = useState('');
+  const [selectedCountries, setSelectedCountries] = useState(new Set());
+  const [selectedAgeRange, setSelectedAgeRange] = useState({ min: 0, max: 100 });
   const scaleAnim = useRef(new Animated.Value(1)).current; 
+  const [isLoading, setIsLoading] = useState(true);
+
+  const countries = ["", "Denmark", "USA", "Canada", "UK", "Australia", "Germany", "France", "Italy", "Spain", "Japan", "China", "India", "Brazil", "Mexico", "South Africa", "Other"];
 
   const calculateAge = (birthday) => {
     if (!birthday) return '';
@@ -17,34 +25,56 @@ const CategoryProfiles = ({ route, navigation }) => {
     return Math.abs(ageDate.getUTCFullYear() - 1970);
   };
 
+  const toggleCountrySelection = (country) => {
+    const newSelectedCountries = new Set(selectedCountries);
+    if (newSelectedCountries.has(country)) {
+      newSelectedCountries.delete(country);
+    } else {
+      newSelectedCountries.add(country);
+    }
+    setSelectedCountries(newSelectedCountries);
+  };
+
   useEffect(() => {
+    setIsLoading(true);
     const fetchProfiles = async () => {
       const db = getFirestore();
-      const q = query(collection(db, 'users'), where('categories', 'array-contains', category));
+      let q = query(collection(db, 'users'), where('categories', 'array-contains', category));
+      // Additional filter logic based on selectedGender, selectedCountry, and selectedAgeRange
 
       try {
         const querySnapshot = await getDocs(q);
         const fetchedProfiles = [];
         querySnapshot.forEach((doc) => {
-          fetchedProfiles.push({ id: doc.id, ...doc.data() });
+          if (doc.id !== auth.currentUser.uid) { // Checks if user ID is not the current user ID
+            fetchedProfiles.push({ id: doc.id, ...doc.data() });
+          }
         });
         setProfiles(fetchedProfiles);
       } catch (error) {
         console.error("Error fetching profiles:", error);
       }
+      setIsLoading(false);
     };
 
     fetchProfiles();
-  }, [category]);
+  }, [category, selectedGender, selectedCountries, selectedAgeRange]);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#FFCB37" />
+      </View>
+    );
+  }
 
   const handleProfilePress = (userId) => {
-    navigation.navigate('UserProfile', { userId });
+    navigation.navigate('ProfileView', { userId });
   };
 
   const handleSendMessage = (userId) => {
     navigation.navigate('MessagesScreen', { recipientId: userId });
   };
-  
 
   const handleProfileInteraction = () => {
     Animated.sequence([
@@ -56,38 +86,89 @@ const CategoryProfiles = ({ route, navigation }) => {
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => { handleProfilePress(item.id); handleProfileInteraction(); }}>
       <Animated.View style={[styles.profileCard, { transform: [{ scale: scaleAnim }] }]}>
-        <View style={styles.cardContent}>
-          <Image
-            source={{ uri: item.profilePicture || 'https://via.placeholder.com/150' }}
-            style={styles.profilePic}
-          />
-          <View style={styles.profileInfo}>
-            <Text style={styles.nameAge}>
-              {item.name}{item.birthday ? `, ${calculateAge(item.birthday)}` : ''}
-            </Text>
-            <Text style={styles.subText}>📍 {item.country}</Text>
-            <Text numberOfLines={2} style={styles.bioText}>{item.bio}</Text>
-          </View>
-          <TouchableOpacity style={styles.messageButton} onPress={() => handleSendMessage(item.id)}>
-            <Icon name="comment" size={20} color="#fff" />
-            <Text style={styles.messageButtonText}>Chat</Text>
-          </TouchableOpacity>
-        </View>
+        <Image
+          source={{ uri: item.profilePicture || 'https://via.placeholder.com/150' }}
+          style={styles.profilePic}
+        />
+        <Text style={styles.nameAge}>
+          {item.name}{item.birthday ? `, ${calculateAge(item.birthday)}` : ''}
+        </Text>
+        <Text style={styles.subText}>📍 {item.country}</Text>
+        <Text numberOfLines={2} style={styles.bioText}>{item.bio}</Text>
+        <TouchableOpacity style={styles.messageButton} onPress={() => handleSendMessage(item.id)}>
+          <Icon name="comment" size={20} color="#fff" />
+          <Text style={styles.messageButtonText}>Chat</Text>
+        </TouchableOpacity>
       </Animated.View>
     </TouchableOpacity>
+  );
+
+  const renderFilterModal = () => (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={isFilterModalVisible}
+      onRequestClose={() => setFilterModalVisible(false)}
+    >
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+        <TouchableOpacity style={styles.closeButton} onPress={() => setFilterModalVisible(false)}>
+          <Icon name="close" size={24} color="#000" />
+        </TouchableOpacity>
+          <ScrollView>
+            <Text style={styles.modalText}>Filter Options</Text>
+            {/* Gender Filter */}
+            <View style={styles.filterOptions}>
+              <Text style={styles.filterLabel}>Gender:</Text>
+              <TouchableOpacity style={[styles.option, selectedGender === 'male' && styles.selectedOption]} onPress={() => setSelectedGender('male')}>
+                <Text style={styles.optionText}>Male 💁🏽‍♂️</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.option, selectedGender === 'female' && styles.selectedOption]} onPress={() => setSelectedGender('female')}>
+                <Text style={styles.optionText}>Female 💁🏽‍♀️</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.option, selectedGender === '' && styles.selectedOption]} onPress={() => setSelectedGender('')}>
+                <Text style={styles.optionText}>Everyone 🌍</Text>
+              </TouchableOpacity>
+            </View>
+            {/* Country Filter */}
+            <View style={styles.filterOptions}>
+              <Text style={styles.filterLabel}>Countries:</Text>
+              {countries.map((country, index) => (
+                <TouchableOpacity key={index} style={[styles.option, selectedCountries.has(country) && styles.selectedOption]} onPress={() => toggleCountrySelection(country)}>
+                  <Text style={styles.optionText}>{country || "Any Country"}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TouchableOpacity style={styles.applyButton} onPress={() => setFilterModalVisible(false)}>
+              <Text style={styles.applyButtonText}>Apply Filters</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
   );
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{`Profiles in ${category}`}</Text>
+      <TouchableOpacity
+        style={styles.filterButton}
+        onPress={() => setFilterModalVisible(true)}
+      >
+        <Icon name="filter" size={26} color="#5967EB" />
+      </TouchableOpacity>
+      {renderFilterModal()}
       <FlatList
         data={profiles}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
+        // numColumns={2}
+        // contentContainerStyle={styles.flatListContainer}
       />
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -96,10 +177,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   title: {
-    fontSize: 22,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#5967EB',
-    marginBottom: 15,
+    color: '#333',
+    marginBottom: 20,
     textAlign: 'center',
   },
   profileCard: {
@@ -110,8 +191,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 10,
-    marginBottom: 20,
-    padding: 20,
+    marginBottom: 10,
+    padding: 15,
     alignItems: 'center',
   },
   cardContent: {
@@ -156,6 +237,91 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginLeft: 5,
     fontSize: 16,
+  },
+  filterButton: {
+    position: 'absolute',
+    top: 10,
+    right: 15,
+    padding: 1,
+    zIndex: 1,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  filterOptions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    marginVertical: 10,
+    width: '100%',
+  },
+  option: {
+    backgroundColor: '#EAEAEA',
+    borderRadius: 20,
+    padding: 10,
+    margin: 5,
+  },
+  selectedOption: {
+    backgroundColor: '#5967EB',
+  },
+  optionText: {
+    color: '#000',
+  },
+  filterLabel: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#31456A',
+    marginBottom: 5,
+    marginLeft: 10,
+    paddingVertical: 10,
+  },
+  applyButton: {
+    backgroundColor: '#5967EB',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginTop: 10,
+    alignSelf: 'center',
+  },
+  applyButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: '#fff7d9',
+    borderRadius: 20,
+    padding: 25,
+    width: '85%',
+    maxHeight: '70%',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
   },
 });
 

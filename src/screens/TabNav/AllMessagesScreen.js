@@ -17,6 +17,10 @@ const AllMessagesScreen = ({ navigation }) => {
     fetchConversations();
   }, []);
 
+  const onRefresh = () => {
+    fetchConversations();
+  };
+
   const fetchConversations = async () => {
     setRefreshing(true);
     const uniqueRecipientIds = new Set();
@@ -78,7 +82,7 @@ const AllMessagesScreen = ({ navigation }) => {
       where('userIds', 'array-contains', currentUserID),
       where('isRead', '==', false)
     );
-  
+
     const unreadSnapshot = await getDocs(unreadMessagesQuery);
     const unreadCount = unreadSnapshot.size;
     setUnreadMessagesCount(unreadCount);
@@ -106,27 +110,35 @@ const AllMessagesScreen = ({ navigation }) => {
     </TouchableOpacity>
   );
 
+  const renderEmptyState = () => {
+    return (
+      <View style={styles.emptyStateContainer}>
+        <Image source={convoImage} style={styles.emptyStateImage} />
+        <Text style={styles.emptyStateText}>No messages yet, start a conversation!</Text>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Messages</Text>
         <Icon name="plus" size={24} color="#5967EB" onPress={() => {/* Navigate to new conversation screen */}} />
       </View>
-      {conversations.length > 0 ? (
-        <FlatList
-          data={conversations}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={fetchConversations} />
-          }
-        />
-      ) : (
-        <View style={styles.emptyStateContainer}>
-          <Image source={convoImage} style={styles.emptyStateImage} />
-          <Text style={styles.emptyStateText}>No messages yet, start a conversation!</Text>
-        </View>
-      )}
+      <FlatList
+  data={conversations}
+  renderItem={renderItem}
+  keyExtractor={item => item.id}
+  refreshControl={
+    <RefreshControl
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      tintColor="#FFCB37"   
+    />
+  }
+  ListEmptyComponent={renderEmptyState}
+  contentContainerStyle={{ flexGrow: 1 }}
+/>
     </View>
   );
 };
@@ -160,9 +172,11 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e0e0e0',
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#31456A',
+    color: '#333',
+    marginBottom: 10,
+    textAlign: 'center',
   },
   profilePic: {
     width: 60,

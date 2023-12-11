@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { auth } from "/Users/computer/Desktop/FriendApp/firebaseConfig.js";
 import { useNavigation } from '@react-navigation/native';
@@ -15,6 +15,7 @@ const allCategories = [
 const HomeScreen = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [exploreCategories, setExploreCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
   const BookwormsImage = require('../../assets/images/bookworms.png'); 
   const ScientistsImage = require('../../assets/images/sciencelover.png'); 
@@ -37,7 +38,7 @@ const HomeScreen = () => {
   const dogImage = require('../../assets/images/dog.png'); 
   const volunteersImage = require('../../assets/images/volunteers.png'); 
   const diyImage = require('../../assets/images/diy.png'); 
-
+  
 
   const handleCategoryPress = (category) => {
     // Navigate to new screen with the selected category
@@ -46,6 +47,7 @@ const HomeScreen = () => {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
+      setIsLoading(true);
       const db = getFirestore();
       const userRef = doc(db, "users", auth.currentUser.uid);
 
@@ -61,10 +63,19 @@ const HomeScreen = () => {
       } catch (error) {
         console.error("Error fetching user profile:", error);
       }
+      setIsLoading(false);
     };
 
     fetchUserProfile();
   }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#FFCB37" />
+      </View>
+    );
+  }
 
   const renderItem = ({ item }) => {
     let categoryIcon;
@@ -221,6 +232,12 @@ const styles = StyleSheet.create({
     width: 100, // Set the width
     height: 100, // Set the height
     resizeMode: 'contain', // Ensure the entire image fits within the dimensions and maintains its aspect ratio
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
   },
 });
 

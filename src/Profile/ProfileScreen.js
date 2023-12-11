@@ -74,7 +74,7 @@ const ProfileScreen = ({ navigation }) => {
         { text: "Yes", onPress: () => {
             signOut(auth).then(() => {
               console.log("User signed out");
-              navigation.navigate('SignIn'); 
+              navigation.navigate('FirstScreen'); 
             }).catch((error) => {
               console.error("Sign out error:", error);
             });

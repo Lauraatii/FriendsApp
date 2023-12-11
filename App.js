@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import "../FriendApp/firebaseConfig";
+import FirstScreen from './src/screens/FirstScreen';
 import Signup from './src/screens/Signup';
 import SignIn from './src/screens/Signin';
 import Namescreen from "./src/screens/Onboarding Screens/Namescreen";
@@ -21,6 +22,7 @@ import CategoryProfiles from './src/screens/CategoryProfiles';
 import BioScreen from './src/screens/Onboarding Screens/BioScreen';
 import MessagesScreen from './src/screens/TabNav/MessagesScreen';
 import { MessagesProvider } from './src/screens/TabNav/MessagesContext';
+import ProfileView from './src/Profile/ProfileView';
 const Stack = createNativeStackNavigator();
 
 
@@ -29,6 +31,7 @@ export default function App() {
     <MessagesProvider>
     <NavigationContainer>
       <Stack.Navigator>
+        <Stack.Screen name="FirstScreen" component={FirstScreen} />
         <Stack.Screen name="Signup" component={Signup} />
         <Stack.Screen name="SignIn" component={SignIn} />
         <Stack.Screen name="NameScreen" component={Namescreen} />
@@ -48,6 +51,8 @@ export default function App() {
         <Stack.Screen name="CategoryProfiles" component={CategoryProfiles} />
         <Stack.Screen name="MessagesScreen" component={MessagesScreen} />
         <Stack.Screen name="MessagesProvider" component={MessagesProvider} />
+        <Stack.Screen name="ProfileView" component={ProfileView} />
+
 
 
 
