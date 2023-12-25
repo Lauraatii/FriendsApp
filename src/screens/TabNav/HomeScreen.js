@@ -41,7 +41,6 @@ const HomeScreen = () => {
   
 
   const handleCategoryPress = (category) => {
-    // Navigate to new screen with the selected category
     navigation.navigate('CategoryProfiles', { category });
   };
 
@@ -229,9 +228,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   categoryIcon: {
-    width: 100, // Set the width
-    height: 100, // Set the height
-    resizeMode: 'contain', // Ensure the entire image fits within the dimensions and maintains its aspect ratio
+    width: 100, 
+    height: 100, 
+    resizeMode: 'contain', 
   },
   loaderContainer: {
     flex: 1,

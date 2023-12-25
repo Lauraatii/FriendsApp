@@ -6,7 +6,7 @@ import { auth } from "/Users/computer/Desktop/FriendApp/firebaseConfig.js";
 import moment from 'moment';
 import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useMessagesContext } from './MessagesContext'; // Importing the context hook
+import { useMessagesContext } from './MessagesContext'; 
 
 const MessagesScreen = ({ route }) => {
   const [messageSections, setMessageSections] = useState([]);
@@ -136,7 +136,7 @@ const MessagesScreen = ({ route }) => {
       console.error("Error uploading image:", error);
     }
   };
-// Mark messages as read and update unread count
+// Marks messages as read and updates unread count
 const markMessagesAsRead = async () => {
   const unreadMessagesQuery = query(
     collection(db, 'messages'),
