@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Animated, Modal, ScrollView, Button, ActivityIndicator } from 'react-native';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import { auth } from '../../firebaseConfig';
 
 const CategoryProfiles = ({ route, navigation }) => {
@@ -39,15 +39,26 @@ const CategoryProfiles = ({ route, navigation }) => {
     setIsLoading(true);
     const fetchProfiles = async () => {
       const db = getFirestore();
-      let q = query(collection(db, 'users'), where('categories', 'array-contains', category));
-      // Additional filter logic based on selectedGender, selectedCountry, and selectedAgeRange
+      let queries = [where('categories', 'array-contains', category)];
+
+      if (selectedGender) {
+        queries.push(where('gender', '==', selectedGender));
+      }
+
+      if (selectedCountries.size > 0) {
+        queries.push(where('country', 'in', Array.from(selectedCountries)));
+      }
+
+      const q = query(collection(db, 'users'), ...queries);
 
       try {
         const querySnapshot = await getDocs(q);
         const fetchedProfiles = [];
         querySnapshot.forEach((doc) => {
-          if (doc.id !== auth.currentUser.uid) { // Checks if user ID is not the current user ID
-            fetchedProfiles.push({ id: doc.id, ...doc.data() });
+          const profileData = doc.data();
+          const age = calculateAge(profileData.birthday);
+          if (doc.id !== auth.currentUser.uid && age >= selectedAgeRange.min && age <= selectedAgeRange.max) {
+            fetchedProfiles.push({ id: doc.id, ...profileData });
           }
         });
         setProfiles(fetchedProfiles);
@@ -59,6 +70,11 @@ const CategoryProfiles = ({ route, navigation }) => {
 
     fetchProfiles();
   }, [category, selectedGender, selectedCountries, selectedAgeRange]);
+
+  const applyFilters = () => {
+    setFilterModalVisible(false);
+    fetchProfiles();
+  };
 
   if (isLoading) {
     return (
@@ -113,36 +129,78 @@ const CategoryProfiles = ({ route, navigation }) => {
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
         <TouchableOpacity style={styles.closeButton} onPress={() => setFilterModalVisible(false)}>
-          <Icon name="close" size={24} color="#000" />
+          <Icon name="times" size={24} color="#000" />
         </TouchableOpacity>
-          <ScrollView>
             <Text style={styles.modalText}>Filter Options</Text>
-            {/* Gender Filter */}
+            {/* Gender filter */}
             <View style={styles.filterOptions}>
               <Text style={styles.filterLabel}>Gender:</Text>
-              <TouchableOpacity style={[styles.option, selectedGender === 'male' && styles.selectedOption]} onPress={() => setSelectedGender('male')}>
-                <Text style={styles.optionText}>Male 💁🏽‍♂️</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.option, selectedGender === 'female' && styles.selectedOption]} onPress={() => setSelectedGender('female')}>
-                <Text style={styles.optionText}>Female 💁🏽‍♀️</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.option, selectedGender === '' && styles.selectedOption]} onPress={() => setSelectedGender('')}>
-                <Text style={styles.optionText}>Everyone 🌍</Text>
-              </TouchableOpacity>
+              <TouchableOpacity 
+            style={[styles.option, selectedGender === 'male' && styles.selectedOption]} 
+            onPress={() => setSelectedGender('male')}
+          >
+            <Text 
+              style={[
+                styles.optionText, 
+                selectedGender === 'male' && styles.selectedOptionText
+              ]}
+            >
+              Male 💁🏽‍♂️
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.option, selectedGender === 'female' && styles.selectedOption]} 
+            onPress={() => setSelectedGender('female')}
+          >
+            <Text 
+              style={[
+                styles.optionText, 
+                selectedGender === 'female' && styles.selectedOptionText
+              ]}
+            >
+              Female 💁🏽‍♀️
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.option, selectedGender === '' && styles.selectedOption]} 
+            onPress={() => setSelectedGender('')}
+          >
+            <Text 
+              style={[
+                styles.optionText, 
+                selectedGender === '' && styles.selectedOptionText
+              ]}
+            >
+              Everyone 🌍
+            </Text>
+          </TouchableOpacity>
             </View>
-            {/* Country Filter */}
+            {/* Country filter */}
             <View style={styles.filterOptions}>
               <Text style={styles.filterLabel}>Countries:</Text>
               {countries.map((country, index) => (
-                <TouchableOpacity key={index} style={[styles.option, selectedCountries.has(country) && styles.selectedOption]} onPress={() => toggleCountrySelection(country)}>
-                  <Text style={styles.optionText}>{country || "Any Country"}</Text>
-                </TouchableOpacity>
+                <TouchableOpacity 
+                key={index} 
+                style={[
+                  styles.option, 
+                  selectedCountries.has(country) && styles.selectedOption
+                ]} 
+                onPress={() => toggleCountrySelection(country)}
+              >
+                <Text 
+                  style={[
+                    styles.optionText, 
+                    selectedCountries.has(country) && styles.selectedOptionText
+                  ]}
+                >
+                  {country || "Any Country"}
+                </Text>
+              </TouchableOpacity>
               ))}
             </View>
-            <TouchableOpacity style={styles.applyButton} onPress={() => setFilterModalVisible(false)}>
+            <TouchableOpacity style={styles.applyButton} onPress={applyFilters}>
               <Text style={styles.applyButtonText}>Apply Filters</Text>
             </TouchableOpacity>
-          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -155,15 +213,13 @@ const CategoryProfiles = ({ route, navigation }) => {
         style={styles.filterButton}
         onPress={() => setFilterModalVisible(true)}
       >
-        <Icon name="filter" size={26} color="#5967EB" />
+        <Icon name="sliders-h" size={24} color="#5967EB" />
       </TouchableOpacity>
       {renderFilterModal()}
       <FlatList
         data={profiles}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        // numColumns={2}
-        // contentContainerStyle={styles.flatListContainer}
       />
     </View>
   );
@@ -322,6 +378,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
+  },
+  selectedOptionText: {
+    color: 'white',
   },
 });
 
