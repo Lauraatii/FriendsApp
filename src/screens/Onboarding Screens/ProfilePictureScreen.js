@@ -56,24 +56,22 @@ const ProfilePictureScreen = ({ navigation }) => {
 
   const handleNext = async () => {
     if (!image) {
-      // Uncomment the below line if you want to enforce image selection
-      // Alert.alert("Error", "Please select an image");
-      // return;
+    
     } else {
       try {
         const userId = auth.currentUser.uid;
-        console.log("User ID:", userId); // Log User ID
+        console.log("User ID:", userId); 
 
         const storage = getStorage();
         const imageRef = ref(storage, `profilePictures/${userId}`);
 
-        console.log("Uploading image:", image); // Log image being uploaded
+        console.log("Uploading image:", image); 
         const blob = await uriToBlob(image);
 
         await uploadBytes(imageRef, blob);
-        console.log("Image uploaded"); // Log after upload
+        console.log("Image uploaded"); 
         const imageUrl = await getDownloadURL(imageRef);
-        console.log("Image URL:", imageUrl); // Log the URL
+        console.log("Image URL:", imageUrl); 
 
         const functionUrl = "https://us-central1-friendsapp-76f42.cloudfunctions.net/updateUserProfile";
         await axios.post(functionUrl, {
