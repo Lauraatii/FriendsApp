@@ -76,6 +76,10 @@ const HomeScreen = () => {
     );
   }
 
+  const FooterSpacer = () => {
+    return <View style={{ height: 110 }} />; 
+  };
+
   const renderItem = ({ item }) => {
     let categoryIcon;
 
@@ -153,63 +157,61 @@ const HomeScreen = () => {
         onPress={() => handleCategoryPress(item)}
       >
         {categoryIcon}
-        <Text style={styles.itemText}>{item}</Text>
+        <Text style={styles.itemText}>{item}</Text> 
       </TouchableOpacity>
     );
   };
-  
 
+  
   return (
-    <ScrollView style={styles.scrollView}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Your Categories</Text>
-        <FlatList
-          data={selectedCategories}
-          renderItem={renderItem}
-          keyExtractor={(item, index) => index.toString()}
-          numColumns={2}
-          showsVerticalScrollIndicator={false}
-        />
-        <Text style={styles.subTitle}>Explore More Categories</Text>
-        <FlatList
-          data={exploreCategories}
-          renderItem={renderItem}
-          keyExtractor={(item, index) => 'explore_' + index}
-          numColumns={2}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
-    </ScrollView>
+    <FlatList
+      ListHeaderComponent={
+        <>
+          <Text style={styles.title}>Your Categories</Text>
+          <FlatList
+            data={selectedCategories}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => index.toString()}
+            numColumns={2}
+            scrollEnabled={false}
+          />
+          <Text style={styles.subTitle}>Explore More Categories</Text>
+        </>
+      }
+      ListFooterComponent={FooterSpacer}
+      data={exploreCategories}
+      renderItem={renderItem}
+      keyExtractor={(item, index) => 'explore_' + index}
+      numColumns={2}
+      style={styles.scrollView}
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
-    backgroundColor: '#FFCB37',
+  listContainer: {
+    paddingHorizontal: '2.5%', 
   },
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    paddingTop: 30,
-    paddingBottom: 150,
-    backgroundColor: '#fff',
+  categoriesContainer: {
+    alignItems: 'center', 
   },
   title: {
     fontSize: 26,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 20,
+    marginTop: 35,
+    textAlign: 'center', 
   },
   itemContainer: {
-    // backgroundColor: '#6877AD',
     backgroundColor: '#5967EB',
     borderRadius: 10,
     padding: 15,
     alignItems: 'center',
-    marginBottom: 10,
-    marginHorizontal: 5,
-    width: '45%',
+    marginBottom: 12,
+    marginHorizontal: 4, 
+    marginLeft: 12,
+    width: '45%', 
     elevation: 5, 
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -219,13 +221,16 @@ const styles = StyleSheet.create({
   itemText: {
     color: '#fff',
     fontSize: 18,
+    textAlign: 'center', 
+    marginTop:4,
   },
   subTitle: {
     fontSize: 22, 
     fontWeight: 'bold',
     color: '#333',
-    marginTop: 20,
-    marginBottom: 10,
+    marginTop: 40,
+    marginBottom: 30,
+    textAlign: 'center', 
   },
   categoryIcon: {
     width: 100, 
