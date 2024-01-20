@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
-import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { auth } from '../../../firebaseConfig';
 import axios from 'axios'; 
 
 const NameScreen = ({ navigation }) => {
   const [name, setName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleNext = async () => {
     if (name) {
+      setIsLoading(true);
       try {
         const userId = auth.currentUser.uid;
         const functionUrl = "https://us-central1-friendsapp-76f42.cloudfunctions.net/updateUserProfile";
+
         console.log("Current User UID:", auth.currentUser.uid);
         console.log("Request data:", { userId, data: { name } });
+
         await axios.post(functionUrl, { 
           userId, 
           data: { name } 
@@ -22,6 +26,7 @@ const NameScreen = ({ navigation }) => {
       } catch (error) {
         Alert.alert("Error", "Failed to save data: " + error.message);
       }
+      setIsLoading(false);
     } else {
       Alert.alert("Error", "Please enter your name");
     }
@@ -36,9 +41,14 @@ const NameScreen = ({ navigation }) => {
           placeholder="Enter your name"
           value={name}
           onChangeText={setName}
+          editable={!isLoading}
         />
-        <TouchableOpacity style={styles.button} onPress={handleNext}>
-          <Text style={styles.buttonText}>Next</Text>
+        <TouchableOpacity style={styles.button} onPress={handleNext} disabled={isLoading}>
+          {isLoading ? (
+              <ActivityIndicator size="small" color="#000" />
+            ) : (
+              <Text style={styles.buttonText}>Next</Text>
+            )}       
         </TouchableOpacity>
       </View>
     </ScrollView>
