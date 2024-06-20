@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   },
   aboutMeCard: {
     backgroundColor: '#fff7d9', 
-    borderRadius: 10,
+    borderRadius: 15,
     padding: 15,
     marginBottom: 20,
     width: '90%',
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   },
 
   categoryContainer: {
-    marginTop: 10,
+    marginTop: 15,
   },
 });
 
