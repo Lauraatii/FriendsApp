@@ -6,6 +6,7 @@ import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth } from "/Users/computer/Desktop/FriendApp/firebaseConfig.js";
 
+// categories
 const allCategories = [
   'Introverts 🤫', 'Extroverts 🤗', 'Adventurers 🚵', 'Artists 🎨', 'Techies 💻',
   'Foodies 🍔', 'Travelers ✈️', 'Bookworms 📚', 'Fitness Buffs 🏋️‍♀️', 'Movie Buffs 🎬',
